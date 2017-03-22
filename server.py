@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import socket
+import thread
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 7734
@@ -104,7 +105,6 @@ class LinkedList (object):
 
 # -------------------------------------------------
 # SERVER LOGIC
-
 serverPeersList = LinkedList()
 serverRFCList = LinkedList()
 
@@ -162,44 +162,58 @@ def LOOKUP(rfc_no):
 
 # -------------------------------------------------
 # COMMS
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((TCP_IP, TCP_PORT))
-s.listen(1)
+s.listen(5)
 print 'Listening on port 7734'
 
-while 1:
-	conn, addr = s.accept()
+def client_thread(conn,addr):
+	print 'New thread with connection address:', addr
+	# Add this client to the serverPeersList
+	# Ask 
 
-	print 'Connection address:', addr
+	# Server logic
+	while 1:
 
-	data = conn.recv(BUFFER_SIZE)
-	if not data: break
-	read=data.split(' ')
+		data = conn.recv(BUFFER_SIZE)
+		if not data: break
+		read=data.split(' ')
 
-	print "Received Command:", data
+		print "Received Command:", data
 
-	if read[0]== "ADD":
-		new_read = data.split('\n')
-		print new_read[2].split('Port: ')[1]
-		code = ADD(read[2], new_read[3].split('Title: ')[1], new_read[1].split('Host: ')[1], new_read[2].split('Port: ')[1])
-		if code:
-			conn.send("Added!")  
+		if read[0]== "ADD":
+			new_read = data.split('\n')
+			print new_read[2].split('Port: ')[1]
+			code = ADD(read[2], new_read[3].split('Title: ')[1], new_read[1].split('Host: ')[1], new_read[2].split('Port: ')[1])
+			if code:
+				conn.send("Added!")  
+			else:
+				conn.send("Entry already exists!")
+
+		elif read[0]== "LOOKUP":
+			code = LOOKUP(read[2])
+			if code == "ERROR":
+				conn.send("File Does Not Exist") 
+			else:
+				conn.send(code)
+
+		elif read[0] == "LIST":
+			code = LIST(read)
+			if code == "ERROR":
+				conn.send("No Entries in the list") 
+			else:
+				conn.send(code)
 		else:
-			conn.send("Entry already exists!")
+			conn.send("INVALID REQUEST!")
 
-	elif read[0]== "LOOKUP":
-		code = LOOKUP(read[2])
-		if code == "ERROR":
-			conn.send("File Does Not Exist") 
-		else:
-			conn.send(code)
-
-	elif read[0] == "LIST":
-		code = LIST(read)
-		if code == "ERROR":
-			conn.send("No Entries in the list") 
-		else:
-			conn.send(code)
-	else:
-		conn.send("INVALID REQUEST!")
+	# Delete client's entries from linked list
+	# .. here 
+	
 	conn.close()
+
+while 1:
+	c, addr = s.accept()
+	thread.start_new_thread(client_thread, (c, addr))
+
+s.close()
