@@ -1,10 +1,10 @@
-#A Simple P2P System Using TCP
+# A Simple P2P System Using TCP
 
-##Developers
+## Developers
 
 **Manoj Sharan** & **Anthony Scalabrino**
 
-##Index
+## Index
 
 1. [How to Execute this project](#run)
 
