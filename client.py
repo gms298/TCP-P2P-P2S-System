@@ -6,8 +6,6 @@ TCP_IP = '127.0.0.1'
 TCP_PORT = 7734
 BUFFER_SIZE = 1024
 
-peer = ['Client1','6543']
-
 #Data structure 
 class Node(object):
 		def __init__ (self, dta, next = None):
@@ -80,15 +78,27 @@ class LinkedList (object):
 	def get_root(self):
 		return self.root
 
-#tosend = "ADD RFC 123456 P2P-CI/1.0"+"\n"+"Host: thishost.csc.ncsu.edu"+"\n"+"Port: 5678"+"\n"+"Title: A Proferred Official ICP"
-tosend = "LOOKUP RFC 123456 P2P-CI/1.0"+"\n"+"Host: thishost.csc.ncsu.edu2"+"\n"+"Port: 56783"+"\n"+"Title: A Proferred Official ICP"
-print tosend
-
 # COMMS
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
+
+host_name = socket.gethostname()
+s.send(host_name)
+
+hello = s.recv(BUFFER_SIZE)
+print hello
+
+# Actual data to send
+tosend = "ADD RFC 1234 P2P-CI/1.0"+"\n"+"Host: "+host_name+"\n"+"Port: 5678"+"\n"+"Title: A Proferred Official ICP"
+#tosend = "LOOKUP RFC 123456 P2P-CI/1.0"+"\n"+"Host: "+host_name+"\n"+"Port: 5678"+"\n"+"Title: A Proferred Official ICP"
+print tosend
+
 s.sendall(tosend)
 data = s.recv(BUFFER_SIZE)
+print "Received data:", data
+
+# while 1:
+# 	print "Infinite Loop"
+
 s.close()
 
-print "received data:", data
