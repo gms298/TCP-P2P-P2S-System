@@ -1,8 +1,24 @@
 import socket
+import os 
+import platform
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 7734
 BUFFER_SIZE = 1024
+
+# Set OS String
+if os.name == "posix":
+	if platform.system() == "Darwin":
+		v, _, _ = platform.mac_ver()
+		OS = "macOS "+v
+		print OS
+	else:
+		OS = platform.system()+" "+platform.release()
+		print OS
+else:
+	OS = platform.system()+" "+platform.release()
+	print OS
+
 
 def get_input():
 	user_input = raw_input('Enter your command (GET/EXIT): ')
@@ -50,7 +66,7 @@ def get_input():
 		hello = c.recv(BUFFER_SIZE)
 		print hello
 
-		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+host_name+"\n"+"OS: Mac OS 10.4.1"
+		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+host_name+"\n"+"OS: "+OS+"\n"
 
 		c.sendall(tosend)
 

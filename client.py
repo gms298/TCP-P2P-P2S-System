@@ -2,6 +2,8 @@
 
 import socket
 import thread
+import os 
+import platform
 
 # Define this client's IP address/ hostname and Port number
 SERVER_IP = '127.0.0.1'
@@ -9,6 +11,19 @@ CLIENT_IP = '127.0.0.1'
 SERVER_PORT = 7734
 CLIENT_PORT = 4368
 BUFFER_SIZE = 1024
+
+# Set OS String
+if os.name == "posix":
+	if platform.system() == "Darwin":
+		v, _, _ = platform.mac_ver()
+		OS = "macOS "+v
+		print OS
+	else:
+		OS = platform.system()+" "+platform.release()
+		print OS
+else:
+	OS = platform.system()+" "+platform.release()
+	print OS
 
 # Data structure - Each node in a linked list
 class Node(object):
@@ -202,7 +217,7 @@ def p2p_get_input():
 		hello = sock.recv(BUFFER_SIZE)
 		print hello
 
-		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"OS: Mac OS 10.4.1"
+		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"OS: "+OS+"\n"
 
 		sock.sendall(tosend)
 
