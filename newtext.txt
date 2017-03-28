@@ -1,0 +1,7 @@
+P2P-CI/1.0 200 OK
+Date: Wed, 12 Feb 2009 15:12:05 GMT
+OS: Mac OS 10.2.1
+Last-Modified: Thu, 21 Jan 2001 9:23:46 GMT
+Content-Length: 12345
+Content-Type: text/text
+(data data data ...)

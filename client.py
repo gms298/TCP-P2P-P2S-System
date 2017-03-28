@@ -2,6 +2,8 @@
 
 import socket
 import thread
+#Read Files
+import csv
 
 # Define this client's IP address/ hostname and Port number
 SERVER_IP = '127.0.0.1'
@@ -82,7 +84,7 @@ class LinkedList (object):
 	def get_root(self):
 		return self.root
 
-# CLIENT LOGIC - P2P and P2P
+# CLIENT LOGIC - P2P and P2S
 
 # Spawn new thread processes to handle new p2p connections
 def p2p_thread(conn1,addr):
