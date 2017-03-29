@@ -290,6 +290,7 @@ def DELETE(ip):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((TCP_IP, TCP_PORT))
 s.listen(5)
+
 print 'Listening on port 7734'
 
 def client_thread(conn,addr):

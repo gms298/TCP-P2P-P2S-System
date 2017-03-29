@@ -64,9 +64,10 @@ def get_input():
 		c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		c.connect((str(client_hostname), int(client_port)))
 
-		c.send('HELLO')
-		hello = c.recv(BUFFER_SIZE)
-		print hello
+		c.send('HELLO from test!')
+
+		hel = c.recv(BUFFER_SIZE)
+		print hel
 
 		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+host_name+"\n"+"OS: "+OS+"\n"
 
@@ -76,7 +77,21 @@ def get_input():
 
 		print client_data
 
-		c.close()
+		if client_data == "FALSE":
+			print "404 NOT FOUND"
+			c.close()
+		else:
+			# Create new .txt file based off of rfc num
+			writefile = open(str(rfc_no) + ".txt", "w")
+
+			#write to new file file 
+			writefile.write(client_data + "NEW VERSION!!!!!")
+			writefile.close() 
+
+			#add new RFC to this clients RFC List
+			client_rfcList.append(rfc_no)
+
+			c.close()
 
 		get_input()
 	elif user_input == "EXIT":

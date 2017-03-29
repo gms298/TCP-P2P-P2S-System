@@ -101,19 +101,58 @@ class LinkedList (object):
 
 # CLIENT LOGIC - P2P and P2P
 
+#need a loop to search valid RFCs
+def searchrfc (array, dta):
+		i = 0
+		for amount in array:
+			if array[i]== dta:
+				print array[i]
+				return "TRUE"#to say valid number	
+			else:
+				i+=1
+		return None
+
 # Spawn new thread processes to handle new p2p connections
 def p2p_thread(conn1,addr):
 	print 'New thread with connection address:', addr
 	hel = conn1.recv(BUFFER_SIZE)
 	print hel
 
-	conn1.send("THANK YOU FOR CONNECTING")
+	conn1.send("Hello from Client!")
+	#Recieve request from peer with RFC Number
+	peer_info = conn1.recv(BUFFER_SIZE)
+	# Value Passed as "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"OS: Mac OS 10.4.1"
+	print "RECEIVED DATA FROM PEER:" + peer_info
+	#Hard Code
+	#peer_info = "GET RFC 1234 P2P-CI/1.0\nHost: 127.0.0.1\nOS: Mac OS 10.4.1"
 
-	client_data = conn1.recv(BUFFER_SIZE)
+	#Split input by spaces to get rfcnum which is spot 2
+	peer_info = peer_info.split(' ')
 
-	print client_data
+	#Send the appropriate text file back
+	rfcnum = int(peer_info[2])
 
-	conn1.send("GOT YOUR CONNECTION !")
+	print rfcnum
+
+	match = searchrfc(RFCLIST, rfcnum)
+
+	#newfile = 9123
+
+	if match == "TRUE":
+		access = open( str(rfcnum) + ".txt", "r")
+		#newfile = open(str(newfile)+".txt", "w")
+		file = access.read()
+		#newfile.write(file)
+		access.close()
+		#newfile.close()
+		conn1.sendall(file)
+		conn1.close()
+		print file 
+	else:
+		file = "FALSE"
+		print file 
+		conn1.send(file)
+		conn1.close()
 
 # Spawn new thread process to handle P2S communication
 def p2s_thread():
