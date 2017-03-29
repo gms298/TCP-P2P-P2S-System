@@ -12,6 +12,8 @@ SERVER_PORT = 7734
 CLIENT_PORT = 4368
 BUFFER_SIZE = 1024
 
+client_rfcList =[]
+
 # Data structure - Each node in a linked list
 class Node(object):
 		def __init__ (self, dta, next = None):
@@ -212,6 +214,20 @@ def p2p_get_input():
 
 		print client_data
 
+		if client_data == "FALSE":
+			print "404 NOT FOUND"
+			sock.close()
+
+		# Create new .txt file based off of rfc num
+		writefile = str(rfc_no) + ".txt"
+
+		#write to new file file 
+		writefile.write(client_data)
+		writefile.close() 
+		
+		#add new RFC to this clients RFC List
+		client_rfcList += rfc_no
+
 		sock.close()
 
 		p2p_get_input()
@@ -223,7 +239,6 @@ def p2p_get_input():
 	else:
 		print "\n"
 		p2p_get_input()
-
 
 # COMMS
 
