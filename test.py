@@ -6,7 +6,6 @@ TCP_IP = '127.0.0.1'
 TCP_PORT = 7734
 BUFFER_SIZE = 1024
 
-
 client_rfcList =[]
 
 # Set OS String
