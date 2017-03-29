@@ -1,10 +1,26 @@
 import socket
+import os 
+import platform
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 7734
 BUFFER_SIZE = 1024
 
 client_rfcList =[]
+
+# Set OS String
+if os.name == "posix":
+	if platform.system() == "Darwin":
+		v, _, _ = platform.mac_ver()
+		OS = "macOS "+v
+		print OS
+	else:
+		OS = platform.system()+" "+platform.release()
+		print OS
+else:
+	OS = platform.system()+" "+platform.release()
+	print OS
+
 
 def get_input():
 	user_input = raw_input('Enter your command (GET/EXIT): ')
