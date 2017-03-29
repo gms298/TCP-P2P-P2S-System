@@ -12,6 +12,8 @@ SERVER_PORT = 7734
 CLIENT_PORT = 4367
 BUFFER_SIZE = 1024
 
+RFCLIST = [1234, 4567, 7890]
+
 # Set OS String
 if os.name == "posix":
 	if platform.system() == "Darwin":
