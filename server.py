@@ -11,6 +11,7 @@ BUFFER_SIZE = 1024
 statuscode = ['200','400','404','505']
 phrase = ['OK','Bad Request', 'Not Found', 'P2P-CI Version Not Supported']
 version = 'P2P-CI/1.0'
+supported_version = '1.0'
 
 # -------------------------------------------------
 #Data structure 
@@ -243,14 +244,13 @@ def LOOKUP(rfc_no, rfc_title):
 #Host: thishost.csc.ncsu.edu
 #Port: 5678
 
-#Response:
+#Respons:
 #version <sp> status code <sp> phrase <cr> <lf>
 #<cr> <lf>
 #RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
 #RFC number <sp> RFC title <sp> hostname <sp> upload port number<cr><lf>
 #...
 #<cr><lf>
-
 def LIST(rfc_no):
 	to_Return = ""
 	#Return RFC number, RFC title, hostname
@@ -298,7 +298,7 @@ def client_thread(conn,addr):
 	print host_name
 	conn.send("SERVER: Thank you for connecting!")
 	# Add this client to the serverPeersList
-	# Todo ..
+	# Ask 
 
 	# Server logic
 	while 1:
@@ -307,50 +307,45 @@ def client_thread(conn,addr):
 		if not data: break
 		read=data.split(' ')
 
-		print "Received Command:", data
+		print "REQUEST MESSAGE : \n", data
 
 		new_read = data.split('\n')
 
 		p2p_version = read[3].split('\n')[0]
 
-		if read[0]== "ADD":
-			if p2p_version == "P2P-CI/1.0":
+		if str(p2p_version.split('P2P-CI/')[1]) == supported_version:
+			# Operations
+			if read[0]== "ADD":
 				code = ADD(read[2], new_read[3].split('Title: ')[1], new_read[1].split('Host: ')[1], new_read[2].split('Port: ')[1])
 				if code:
 					conn.send(version +" "+ statuscode[0] +" "+ phrase[0] + "\n" + read[2] +" "+ new_read[3].split('Title: ')[1] +" "+ new_read[1].split('Host: ')[1] +" "+ new_read[2].split('Port: ')[1] + "\n")  
 				else:
 					conn.send(version +" "+ statuscode[1] +" "+ phrase[1] + "\n")
-			else:
-				conn.send(version +" "+ statuscode[3] +" "+ phrase[3] + "\n")
-
-		elif read[0]== "LOOKUP":
-			if p2p_version == "P2P-CI/1.0":
+				
+			elif read[0]== "LOOKUP":
 				code = LOOKUP(read[2], new_read[3].split('Title: ')[1])
 				if code == "ERROR":
 					conn.send(version +" "+ statuscode[2] +" "+ phrase[2] + "\n") 
 				else:
 					conn.send(code)
-			else:
-				conn.send(version +" "+ statuscode[3] +" "+ phrase[3] + "\n")
 
-		elif read[0] == "LIST":
-			if p2p_version == "P2P-CI/1.0":
+			elif read[0] == "LIST":
 				code = LIST(read)
 				if code == "ERROR":
 					conn.send(version +" "+ statuscode[2] +" "+ phrase[2] + "\n") 
 				else:
 					conn.send(code)
+			
 			else:
-				conn.send(version +" "+ statuscode[3] +" "+ phrase[3] + "\n")
-
-		elif read[0] == "EXIT":
-			DELETE(host_name)
+				# Send a Bad request message
+				conn.send(version +" "+ statuscode[1] +" "+ phrase[1] + "\n")
 		else:
-			conn.send(version +" "+ statuscode[1] +" "+ phrase[1] + "\n")
+			# Send P2P version not supported
+			conn.send(version +" "+ statuscode[3] +" "+ phrase[3] + "\n")
 			
 	# Delete client's entries from linked list
 	DELETE(host_name)
-	
+	# Close connection
 	conn.close()
 
 while 1:

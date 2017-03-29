@@ -9,7 +9,7 @@ import platform
 SERVER_IP = '127.0.0.1'
 CLIENT_IP = '127.0.0.1'
 SERVER_PORT = 7734
-CLIENT_PORT = 4368
+CLIENT_PORT = 4367
 BUFFER_SIZE = 1024
 
 # Set OS String
@@ -135,7 +135,13 @@ def p2s_thread():
 def p2s_get_input():
 	user_input = raw_input('>>P2S: Enter your command (ADD/LOOKUP/LIST/P2P): ')
 	if user_input == "ADD":
-		rfc_no = raw_input(">> Enter RFC Number: ")
+		while True:
+			try:
+				rfc_no = int(raw_input(">> Enter RFC Number: "))
+				break
+			except ValueError:
+				print("Oops! Not a valid number.  Try again...")
+
 		rfc_title = raw_input(">> Enter RFC Title: ")
 		tosend = "ADD RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"Port: "+str(CLIENT_PORT)+"\n"+"Title: "+rfc_title+"\n"
 
@@ -147,7 +153,12 @@ def p2s_get_input():
 		p2s_get_input()
 
 	elif user_input == "LOOKUP":
-		rfc_no = raw_input(">> Enter RFC Number: ")
+		while True:
+			try:
+				rfc_no = int(raw_input(">> Enter RFC Number: "))
+				break
+			except ValueError:
+				print("Oops! Not a valid number.  Try again...")
 		rfc_title = raw_input(">> Enter RFC Title: ")
 		tosend = "LOOKUP RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"Port: "+str(CLIENT_PORT)+"\n"+"Title: "+rfc_title+"\n"
 
@@ -181,7 +192,13 @@ def p2p_get_input():
 	user_input = raw_input('>>P2P: Enter your command (GET/P2S): ')
 	if user_input == "GET":
 		# Get RFC number and Title from user
-		rfc_no = raw_input(">> Enter RFC Number: ")
+		while True:
+			try:
+				rfc_no = int(raw_input(">> Enter RFC Number: "))
+				break
+			except ValueError:
+				print("Oops! Not a valid number.  Try again...")
+						
 		rfc_title = raw_input(">> Enter RFC Title: ")
 
 		# LOOKUP the RFC from the server through active P2S connection
