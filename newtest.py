@@ -22,16 +22,16 @@ print client_data
 if client_data == "FALSE":
 	print "404 NOT FOUND"
 	c.close()
-	
-# Create new .txt file based off of rfc num
-writefile = open(str(rfc_no) + ".txt", "w")
+else:
+	# Create new .txt file based off of rfc num
+	writefile = open(str(rfc_no) + ".txt", "w")
 
-#write to new file file 
-writefile.write(client_data + "NEW VERSION!!!!!")
-writefile.close() 
+	#write to new file file 
+	writefile.write(client_data + "NEW VERSION!!!!!")
+	writefile.close() 
 
-#add new RFC to this clients RFC List
-client_rfcList += rfc_no
+	#add new RFC to this clients RFC List
+	client_rfcList += rfc_no
 
-sock.close()
-c.close()
+	sock.close()
+	c.close()
