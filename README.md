@@ -10,7 +10,7 @@
 
 ### <a name="run"></a>Instructions
 
-**Project Description:** Please use [this link]()
+**Project Description:** Please use [this link](https://github.com/gms298/TCP-P2P-P2S-System/tree/master/Project%20Description)
 
 **Note**: Please make sure you have python, pip & psutil package installed on your system before proceeding.
 
