@@ -1,4 +1,4 @@
-# A Simple P2P System Using TCP
+# A P2P & P2S System Using TCP
 
 ## Developers
 
@@ -6,17 +6,22 @@
 
 ## Index
 
-1. [How to Execute this project](#run)
+1. [Instructions](#run)
 
-### <a name="run"></a>How to Execute this project
+### <a name="run"></a>Instructions
 
-**Note**: Please make sure you have python installed on your system before proceeding.
+**Project Description:** Please use [this link]()
 
-1. Open Terminal on macOS or PowerShell on Windows and type in,
+**Note**: Please make sure you have python, pip & psutil package installed on your system before proceeding.
+
+1. Open `server.py`, change IP addresses to reflect the current machine's address. Save it. Similarly, update the 'client.py' file. 
+
+2. Open Terminal on macOS or PowerShell on Windows and type in,
 
 	`python server.py`
 	
-2. To run each client (rename client.py to client1.py, client2.py, etc ..),
+3. To run the client,
 
 	`python client.py`
 	
+	You may want to run multiple copies of the same client code on different machines for full P2P functionality.

@@ -3,8 +3,8 @@
 import socket
 import thread
 
-TCP_IP = '127.0.0.1'
-TCP_PORT = 7734
+TCP_IP = ''
+TCP_PORT = 7735
 BUFFER_SIZE = 1024
 
 #variables for status codes
@@ -190,23 +190,24 @@ serverRFCList = LinkedList()
 def ADD(rfc_no, rfc_title, ip, port):
 	# Adding Peer into serverPeersList
 	if serverPeersList.find(serverPeersList.get_root(), ip):
-		print "Entry "+ip+" : "+str(port)+" already exists"
+		print ' '
+		# print "Entry "+ip+" : "+str(port)+" already exists"
 	else:
 		temp = [ip,int(port)]
-		print "================CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
-		print temp
+		# print "================CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
+		# print temp
 		serverPeersList.add(temp)
-		print "Entry "+ip+" : "+str(port)+" added to the list"
+		# print "Entry "+ip+" : "+str(port)+" added to the list"
 
 	# Adding RFC details into serverRFCList
 	hostmatch = serverRFCList.findRFC(serverRFCList.get_root(), int(rfc_no))
 	if not hostmatch:
-		print "Adding RFC File: "+rfc_no+" | "+rfc_title
+		# print "Adding RFC File: "+rfc_no+" | "+rfc_title
 		temp = [int(rfc_no),rfc_title,ip]
 		serverRFCList.add(temp)
-		print "================CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
-		print temp
-		print "SUCESS: No other hosts have this file. Added you to the list!"
+		# print "================CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
+		# print temp
+		# print "SUCESS: No other hosts have this file. Added you to the list!"
 		return True
 	else:
 		match = 0
@@ -214,15 +215,15 @@ def ADD(rfc_no, rfc_title, ip, port):
 			if ip == host:
 				match +=1
 		if match > 0:
-			print "FAILURE: TRYING TO ADD DUPLICATE RFC ENTRY!"
+			# print "FAILURE: TRYING TO ADD DUPLICATE RFC ENTRY!"
 			return False
 		else:
-			print "Adding RFC File: "+rfc_no+" | "+rfc_title
+			# print "Adding RFC File: "+rfc_no+" | "+rfc_title
 			temp = [int(rfc_no),rfc_title,ip]
 			serverRFCList.add(temp)
-			print "================TO CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
-			print temp
-			print "SUCESS: Other Hosts have this file. Added you to the list anyway!"
+			# print "================TO CHECK DATA TYPE BEFORE ADDING INTO LINKED LIST================"
+			# print temp
+			# print "SUCESS: Other Hosts have this file. Added you to the list anyway!"
 			return True
 
 
@@ -230,7 +231,6 @@ def LOOKUP(rfc_no, rfc_title):
 	to_Return = version +" "+ statuscode[0] +" "+ phrase[0] + "\n"
 	hostmatch = serverRFCList.findRFC(serverRFCList.get_root(), int(rfc_no))
 	if not hostmatch:
-		print "FILE DOES NOT EXIST"
 		return "ERROR"
 	else:
 		for host in hostmatch:
@@ -256,7 +256,6 @@ def LIST(rfc_no):
 	#Return RFC number, RFC title, hostname
 
 	portlist = serverRFCList.entireList(serverRFCList.get_root(), "test")
-	print portlist
 
 	#Return Hostname, portnumber
 	#namelist = serverPeersList.entireHosts(serverPeersList.get_root(), "Bogus" )
@@ -271,17 +270,9 @@ def LIST(rfc_no):
 def DELETE(ip):
 	# DELETE every entry from serverPeersList
 	deletePeer = serverPeersList.removePeer(ip)
-	if deletePeer:
-		print "Deleted all entries matching "+ip+" from serverPeersList!"
-	else:
-		print "No entries matching "+ip+" found in serverPeersList!"
 
 	# DELETE every entry from serverRFCList
 	deleteRFC = serverRFCList.removeRFC(ip)
-	if deleteRFC:
-		print "Deleted all entries matching "+ip+" from serverRFCList!"
-	else:
-		print "No entries matching "+ip+" found in serverRFCList!"
 	return None
 
 # -------------------------------------------------
@@ -296,7 +287,7 @@ print 'Listening on port 7734'
 def client_thread(conn,addr):
 	print 'New thread with connection address:', addr
 	host_name = conn.recv(BUFFER_SIZE)
-	print host_name
+
 	conn.send("SERVER: Thank you for connecting!")
 	# Add this client to the serverPeersList
 	# Ask 
@@ -312,7 +303,11 @@ def client_thread(conn,addr):
 
 		new_read = data.split('\n')
 
-		p2p_version = read[3].split('\n')[0]
+		if read[0]== "LIST":
+			p2p_version = read[2].split('\n')[0]
+		else:
+			p2p_version = read[3].split('\n')[0]
+		
 
 		if str(p2p_version.split('P2P-CI/')[1]) == supported_version:
 			# Operations

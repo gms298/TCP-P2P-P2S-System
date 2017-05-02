@@ -4,15 +4,22 @@ import socket
 import thread
 import os 
 import platform
+import datetime
+import time
+from mimetypes import MimeTypes
+import urllib 
 
 # Define this client's IP address/ hostname and Port number
-SERVER_IP = '127.0.0.1'
-CLIENT_IP = '127.0.0.1'
-SERVER_PORT = 7734
-CLIENT_PORT = 4367
+SERVER_IP = ''
+CLIENT_IP = ''
+
+SERVER_PORT = 7735
+CLIENT_PORT = 4443
+
 BUFFER_SIZE = 1024
 
-RFCLIST = [1234, 4567, 7890]
+rfc_title_list = []
+rfc_no_list = []
 
 # Set OS String
 if os.name == "posix":
@@ -116,7 +123,7 @@ def searchrfc (array, dta):
 def p2p_thread(conn1,addr):
 	print 'New thread with connection address:', addr
 	hel = conn1.recv(BUFFER_SIZE)
-	print hel
+	# print hel
 
 	conn1.send("Hello from Client!")
 	#Recieve request from peer with RFC Number
@@ -132,26 +139,40 @@ def p2p_thread(conn1,addr):
 	#Send the appropriate text file back
 	rfcnum = int(peer_info[2])
 
-	print rfcnum
+	# print rfcnum
 
-	match = searchrfc(RFCLIST, rfcnum)
+	# print "RFC NO LIST",rfc_no_list
 
-	#newfile = 9123
+
+	match = searchrfc(rfc_no_list, rfcnum)
 
 	if match == "TRUE":
-		access = open( str(rfcnum) + ".txt", "r")
+		index = rfc_no_list.index(int(rfcnum))
+		f_name = str(rfcnum)+"-"+str(rfc_title_list[index])+".txt"
+		access = open( f_name, "r")
 		#newfile = open(str(newfile)+".txt", "w")
 		file = access.read()
 		#newfile.write(file)
 		access.close()
 		#newfile.close()
+		today = datetime.date.today()
+		a = today.strftime("%a, %d %b %Y, %H:%M:%S %Z")
+		b = time.ctime(os.path.getmtime(f_name))
+		c = os.path.getsize(f_name)
+		mime = MimeTypes()
+		url = urllib.pathname2url(f_name)
+		mime_type = mime.guess_type(url)
+		d = mime_type[0]
+		temp1 = "P2P-CI/1.0 200 OK\nDate: "+str(a)+"\n"+"OS: "+str(OS)+"\n"+"Last-Modified: "+str(b)+"\nContent-Length: "+str(c)+"\nContent-Type: "+str(d)+"\n"
+		conn1.sendall(temp1)
+		conn1.recv(BUFFER_SIZE)
 		conn1.sendall(file)
 		conn1.close()
-		print file 
+		# print file 
 	else:
 		file = "FALSE"
-		print file 
-		conn1.send(file)
+		# print file 
+		conn1.send("\nP2P-CI/1.0 400 Bad Request\n")
 		conn1.close()
 
 # Spawn new thread process to handle P2S communication
@@ -167,7 +188,28 @@ def p2s_thread():
 
 	# Receiving a welcome message from server
 	hello = s.recv(BUFFER_SIZE)
-	print hello
+	# print hello
+
+	# Adding files into Server automatically
+	filelist =[]
+
+   	# print os.listdir(".")
+
+   	for file1 in os.listdir("."):
+   		if file1.endswith(".txt"):
+			filelist.append(file1)
+
+	for i in filelist:
+		rfc_no_list.append(int(i.split('.txt')[0].split('-')[0]))
+		rfc_title_list.append(i.split('.txt')[0].split('-')[1])
+
+	j=0
+	for num in rfc_no_list:
+		tosend = "ADD RFC "+str(num)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"Port: "+str(CLIENT_PORT)+"\n"+"Title: "+rfc_title_list[j]+"\n"
+		j+=1
+		s.sendall(tosend)
+		data = s.recv(BUFFER_SIZE)
+		print data
 
 	# Call P2S Logic
 	p2s_get_input()
@@ -182,15 +224,12 @@ def p2s_get_input():
 				break
 			except ValueError:
 				print("Oops! Not a valid number.  Try again...")
-
 		rfc_title = raw_input(">> Enter RFC Title: ")
 		tosend = "ADD RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"Port: "+str(CLIENT_PORT)+"\n"+"Title: "+rfc_title+"\n"
 
 		s.sendall(tosend)
 		data = s.recv(BUFFER_SIZE)
-
 		print data
-
 		p2s_get_input()
 
 	elif user_input == "LOOKUP":
@@ -254,38 +293,55 @@ def p2p_get_input():
 		read=data.split(' ')
 		new_read = data.split('\n')
 
-		print new_read[1]
+		if new_read[0].split('P2P-CI/1.0 ')[1].split(' ')[0]=="404":
+			p2p_get_input()
+		else:
+			temp=new_read[1].split(' ')
 
-		temp=new_read[1].split(' ')
+			length = len(temp)
 
-		length = len(temp)
+			client_hostname = temp[length-3]
+			client_port = temp[length-2]
 
-		print temp
-		client_hostname = temp[length-3]
-		client_port = temp[length-2]
+			# Create a new socket to do a "GET" request - P2P 
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.connect((str(client_hostname), int(client_port)))
 
-		print "PORT number: "+client_port
-		print "Hostname: "+client_hostname
+			sock.send('HELLO')
+			hello = sock.recv(BUFFER_SIZE)
 
-		# Create a new socket to do a "GET" request - P2P 
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sock.connect((str(client_hostname), int(client_port)))
+			tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"OS: "+OS+"\n"
 
-		sock.send('HELLO')
-		hello = sock.recv(BUFFER_SIZE)
-		print hello
+			sock.sendall(tosend)
 
-		tosend = "GET RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"OS: "+OS+"\n"
+			initial = sock.recv(BUFFER_SIZE)
+			temp2 = initial.split("\n")[0].split("P2P-CI/1.0 ")[1].split(" ")[0]
 
-		sock.sendall(tosend)
+			if int(temp2)==200:
+				sock.send("OK")
+				client_data = sock.recv(BUFFER_SIZE)
+				# Create new .txt file based off of rfc num
+				writefile = open(str(rfc_no)+"-"+str(rfc_title)+ ".txt", "w")
 
-		client_data = sock.recv(BUFFER_SIZE)
+				#write to new file file 
+				writefile.write(client_data)
+				writefile.close() 
 
-		print client_data
+				#add new RFC to this clients RFC List
+				rfc_no_list.append(int(rfc_no))
+				rfc_title_list.append(rfc_title)
 
-		sock.close()
+				sock.close()
 
-		p2p_get_input()
+				tosend = "ADD RFC "+str(rfc_no)+" P2P-CI/1.0"+"\n"+"Host: "+CLIENT_IP+"\n"+"Port: "+str(CLIENT_PORT)+"\n"+"Title: "+rfc_title+"\n"
+				s.sendall(tosend)
+				dta = s.recv(BUFFER_SIZE)
+				print dta
+			else:
+				print initial
+				sock.close()
+
+			p2p_get_input()
 
 	elif user_input == "P2S":
 		print "Switching to P2S Menu ... \n"
